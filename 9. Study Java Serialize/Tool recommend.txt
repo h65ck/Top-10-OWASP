@@ -1,0 +1,14 @@
+Link Jetbrains tại phút 5:32 của bài Gợi ý level 4 và nghiên cứu thêm:
+
+https://www.jetbrains.com/idea/ 
+
+Link GitHub tại phút 7:12 của bài Gợi ý level 4 và nghiên cứu thêm:
+
+https://github.com/frohoff/ysoserial/
+
+Link GitHub tại phút 16:05 của bài Gợi ý level 4 và nghiên cứu thêm:
+
+https://github.com/frohoff/ysoserial/tree/master/src/main/java/ysoserial/payloads
+
+//Cach Runtime.exec hoạt dong
+https://codewhitesec.blogspot.com/2015/03/sh-or-getting-shell-environment-from.html
