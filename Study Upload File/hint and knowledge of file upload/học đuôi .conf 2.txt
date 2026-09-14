@@ -1,0 +1,100 @@
+# This is the main Apache server configuration file.
+DefaultRuntimeDir ${APACHE_RUN_DIR}     #DefaultRuntimeDir là một chỉ thị cấu hình được sử dụng để xác định thư mục nơi Apache lưu trữ các 
+                                                #tệp thời gian chạy (runtime files) như:
+                                                        #PID file(Process id) (thường là apache2.pid hoặc httpd.pi, Lock file, Socket file (nếu có)
+                                        #Là Thư mục mặc định để chứa các file trong time chạy của Apache
+                                        #APACHE_RUN_DIR = /var/run/apache2 (hoặc /run/apache2 trên một số hệ thống hiện đại)
+PidFile ${APACHE_PID_FILE}             #File chứa PID của tiến trình chính Apache
+
+Timeout 300                     # Thời gian tối đa (giây) mà Apache sẽ chờ cho 1 request
+KeepAlive On                    # Giữ kết nối HTTP mở sau khi gửi phản hồi, để client có thể gửi tiếp yêu cầu khác mà không phải tạo kết nối TCP mới.
+MaxKeepAliveRequests 100        # Giới hạn số lượng yêu cầu tối đa mà một client có thể gửi qua một kết nối Keep-Alive.
+KeepAliveTimeout 5              # Sau khi gửi phản hồi, Apache sẽ giữ kết nối mở trong tối đa 5 giây để chờ xem client có gửi yêu cầu mới không.
+
+User ${APACHE_RUN_USER}         # Apache sẽ chạy các tiến trình con (child processes) dưới quyền của user được chỉ định. Thường là www-data (trên Debian/Ubuntu) hoặc apache (trên CentOS/RHEL/Fedora).
+Group ${APACHE_RUN_GROUP}       # Tương tự, chỉ định nhóm mà Apache sẽ chạy trong đó.
+
+HostnameLookups Off             #là một chỉ thị trong Apache để tắt việc tra cứu DNS ngược (reverse DNS lookup), tức là không cố gắng 
+                                        #chuyển địa chỉ IP của client thành hostname khi có request đến.
+                                                        #Off	Không tra cứu DNS ngược (nhanh hơn, mặc định, nên dùng).
+                                                        #On	Apache sẽ tra DNS để lấy hostname cho địa chỉ IP.
+                                                        #Double	Apache tra DNS ngược và xuôi để xác minh hostname và địa chỉ IP.
+
+# Include module configuration:          # Là một chỉ thị trong Apache để nạp thêm file cấu hình(nếu tồn tại).
+IncludeOptional mods-enabled/*.load             # Nạp các file .load trong thư mục mods-enabled/
+IncludeOptional mods-enabled/*.conf             # Nạp các file .conf tương ứng với các module được kích hoạt.
+
+# Include list of ports to listen on
+Include ports.conf
+#Apache dùng thẻ <Directory> để quy định các quyền cho từng thư mục. Đây là một trong những khối quan trọng nhất để bảo mật.
+<Directory />           # Chặn toàn bộ truy cập đến /
+        Options FollowSymLinks # cho phép dùng symbolic links.
+        AllowOverride None     # .htaccess trong thư mục này không có tác dụng.
+        Require all denied     # Từ chối mọi request tới thư mục này.
+</Directory>
+
+<Directory /usr/share>          # Cho phép truy cập tất cả nội dung bên trong /usr/share (nơi chứa tài nguyên tĩnh như tài liệu, ứng dụng web cài sẵn...).
+        AllowOverride None      # Không cho phép .htaccess can thiệp
+        Require all granted     # Cho phép tất cả mọi người truy cập vào /usr/share
+</Directory>
+
+<Directory /var/www/>
+        Options Indexes FollowSymLinks  # thêm Indexs để: Nếu không có index.html/php, Apache sẽ hiện danh sách file. ⚠️ Có thể nguy hiểm nếu không cần thiết.
+        # CHANGELOG: Added to allow .htaccess
+        AllowOverride All       # Cho phép các lệnh trong file .htaccess có hiệu lực.
+        Require all granted     #Cho phép mọi client truy cập vào thư mục /var/www/.
+</Directory>
+
+# CHANGELOG: Added to allow .htaccess
+AccessFileName .htaccess
+
+# The following lines prevent .htaccess and .htpasswd files from being viewed by Web clients.
+#
+<FilesMatch "^\.ht">
+        Require all denied
+</FilesMatch>
+
+
+# The following directives define some format nicknames for use with a CustomLog directive.
+# Phần quản lý log trong Apache — dùng để xác định cách ghi log
+ErrorLog ${APACHE_LOG_DIR}/error.log    #Ghi log lỗi của Apache vào file
+LogLevel warn                           #Mức độ ghi log lỗi 
+                                                      #  | Mức log          | Ghi lại gì?                             |
+                                                      #  | ---------------- | --------------------------------------- |
+                                                      #  | `trace1-8`       | Chi tiết cao nhất (debug cực sâu)       |
+                                                      #  | `debug`          | Ghi thông tin cho lập trình viên        |
+                                                      #  | `info`           | Ghi thông tin hoạt động thông thường    |
+                                                      #  | `notice`         | Mặc định, ghi sự kiện đáng lưu ý        |
+                                                      #  | `warn`           | Cảnh báo (có thể không lỗi)             |
+                                                      #  | `error`          | Có lỗi                                  |
+                                                      #  | `crit`           | Lỗi nghiêm trọng                        |
+                                                      #  | `alert`, `emerg` | Khẩn cấp, server có thể ngừng hoạt động |
+
+
+
+# Định nghĩa format cho access log: (LogFormat "<định dạng log>" <biệt_danh>)
+#| Thành phần           | Ý nghĩa                                |
+#| -------------------- | -------------------------------------- |
+#| `%v:%p`              | Tên virtual host và cổng (vhost\:port) |
+#| `%h`                 | IP client                              |
+#| `%l`                 | Tên user từ identd (thường là `-`)     |
+#| `%u`                 | Tên user xác thực (nếu có HTTP auth)   |
+#| `%t`                 | Thời gian request                      |
+#| `\"%r\"`             | Request line (GET /abc HTTP/1.1)       |
+#| `%>s`                | Mã trạng thái HTTP trả về              |
+#| `%O`                 | Số byte trả về                         |
+#| `\"%{Referer}i\"`    | HTTP Referer                           |
+#| `\"%{User-Agent}i\"` | Trình duyệt                            |
+
+LogFormat "%v:%p %h %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\"" vhost_combined 
+LogFormat "%h %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\"" combined
+LogFormat "%h %l %u %t \"%r\" %>s %O" common
+LogFormat "%{Referer}i -> %U" referer                           
+LogFormat "%{User-agent}i" agent                                        
+
+# nạp thêm các phần cấu hình mở rộng giúp hệ thống hoạt động đầy đủ
+# Include generic snippets of statements
+IncludeOptional conf-enabled/*.conf
+
+# Include the virtual host configurations:
+IncludeOptional sites-enabled/*.conf

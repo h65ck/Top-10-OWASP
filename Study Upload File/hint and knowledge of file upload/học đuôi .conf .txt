@@ -1,0 +1,12 @@
+<FilesMatch ".+\.ph(ar|p|tml)$"> #cho phép truy cập những đuôi file nào
+    SetHandler application/x-httpd-php #Xử lý file đó kiểu gì
+</FilesMatch>
+
+DirectoryIndex disabled                #Vô hiệu hóa danh sách file mặc định nếu không có file được chỉ định(apache hiện đại không còn dùng)
+DirectoryIndex index.php index.html    #Nếu truy cập thư mục (ví dụ /blog/) thì: Apache sẽ ưu tiên tìm index.php, nếu không có thì dùng index.html.
+
+#Chặn truy cập thư mục /upload/
+<LocationMatch ^/upload/$>
+    Order deny,allow    #chặn tất cả truy cập từ 
+    Deny from all             # client vào URL /upload/.
+</LocationMatch>
