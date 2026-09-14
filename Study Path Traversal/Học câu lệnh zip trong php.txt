@@ -1,0 +1,25 @@
+for ( $i = 0; $i < $z->numFiles; $i++ ) {
+            if ( ! $info = $z->statIndex($i) ){}
+}
+
+Giá trị trả về của statIndex()
+Hàm này trả về một mảng associative, ví dụ:
+Array
+(
+    [name] => images/a.jpg
+    [index] => 0
+    [crc] => 123456789
+    [size] => 20480
+    [mtime] => 1700000000
+    [comp_size] => 10240
+    [comp_method] => 8
+)
+
+Key	Ý nghĩa
+name	Tên file trong zip
+size	Kích thước file gốc
+comp_size	Kích thước sau nén
+mtime	Thời gian sửa
+index	Vị trí file
+crc	Checksum
+comp_method	Kiểu nén
